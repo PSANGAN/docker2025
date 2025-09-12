@@ -1,0 +1,15 @@
+# syntax=docker/dockerfile:1
+FROM alpine
+RUN apk add curl
+WORKDIR /downloads/markdown
+RUN curl -LO https://raw.githubusercontent.com/cloudacademy/python_postgres_web_app/main/readme.md
+# Prints the current user to the /downloads/who.dat file
+RUN whoami > /downloads/who.dat
+# Ensure all users can write to the /downloads/who.dat file so the new user below can append to the file.
+RUN chmod a+w /downloads/who.dat
+# Create the user squid.
+RUN adduser -D squid
+# Change the user.
+USER squid
+RUN whoami >> /downloads/who.dat
+
