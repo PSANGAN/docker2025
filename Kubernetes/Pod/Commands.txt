@@ -1,0 +1,5 @@
+kubectl explain Pod.spec | more
+kubectl explain <Resource_Kind>.<Path_To_Field>
+kubectl get pod
+kubectl get pod first-pod -o yaml | more
+kubectl delete pod first-pod
