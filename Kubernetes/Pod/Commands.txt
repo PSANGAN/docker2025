@@ -3,3 +3,16 @@ kubectl explain <Resource_Kind>.<Path_To_Field>
 kubectl get pod
 kubectl get pod first-pod -o yaml | more
 kubectl delete pod first-pod
+kubectl get pods -L color,tier
+# Use the -l (or --selector) option to select all Pods with a color label
+kubectl get pods -L color,tier -l color
+# Select all Pods that do not have a color label
+kubectl get pods -L color,tier -l '!color'
+# Select all Pods that have the color red
+kubectl get pods -L color,tier -l 'color=red'
+# Select all Pods that have the color red and are not in frontend tier
+kubectl get pods -L color,tier -l 'color=red,tier!=frontend'
+# Select all Pods with green or blue color
+kubectl get pods -L color,tier -l 'color in (blue,green)'
+# Use the describe command to display the annotation for the red-frontend Pod
+kubectl describe pod red-frontend | grep Annotations
