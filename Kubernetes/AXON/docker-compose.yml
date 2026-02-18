@@ -1,0 +1,15 @@
+services:
+  axonserver:
+    image: axoniq/axonserver:latest
+    container_name: axonserver
+    restart: unless-stopped
+
+    ports:
+      - "8024:8024" # HTTP UI
+      - "8124:8124" # gRPC port for Axon Framework
+
+    volumes:
+      # IMPORTANT: Use full absolute Windows paths + forward slashes
+      - C:/PGS/Temp/axonserver/data:/axonserver/data
+      - C:/PGS/Temp/axonserver/events:/axonserver/events
+      - C:/PGS/Temp/axonserver/config:/axonserver/config
