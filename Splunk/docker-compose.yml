@@ -1,0 +1,23 @@
+version: "3.9"
+
+services:
+  splunk:
+    image: splunk/splunk:latest
+    container_name: splunk
+    environment:
+      SPLUNK_GENERAL_TERMS: "--accept-sgt-current-at-splunk-com"
+      SPLUNK_START_ARGS: "--accept-license"
+      SPLUNK_PASSWORD: "Admin@12345"
+      SPLUNK_USERNAME: "admin"
+    ports:
+      - "8000:8000" # Splunk Web
+      - "8089:8089" # Management Port
+      - "9997:9997" # Forwarder Port
+    volumes:
+      - splunk-data:/opt/splunk/var
+      - splunk-etc:/opt/splunk/etc
+    restart: unless-stopped
+
+volumes:
+  splunk-data:
+  splunk-etc:
