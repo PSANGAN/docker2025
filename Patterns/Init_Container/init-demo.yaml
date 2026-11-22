@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app-with-init
+spec:
+  initContainers:
+    - name: wait-for-db # runs first
+      image: busybox:1.36
+      command:
+        [
+          "sh",
+          "-c",
+          "until nc -z postgres 5432; do echo waiting for postgres; sleep 2; done",
+        ]
+    - name: prepare-config # runs second, only after the first succeeds
+      image: busybox:1.36
+      command:
+        [
+          "sh",
+          "-c",
+          'echo "spring.profiles.active=prod" > /config/app.properties',
+        ]
+      volumeMounts:
+        - { name: config, mountPath: /config }
+  containers:
+    - name: app # stand-in for your Spring Boot container
+      image: busybox:1.36
+      command:
+        [
+          "sh",
+          "-c",
+          'echo "Loaded config:"; cat /config/app.properties; sleep 3600',
+        ]
+      volumeMounts:
+        - { name: config, mountPath: /config }
+  volumes:
+    - name: config
+      emptyDir: {} # shared scratch space between containers

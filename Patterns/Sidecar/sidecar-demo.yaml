@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app-with-sidecar
+spec:
+  containers:
+    - name: app # main container: writes logs to a file
+      image: busybox:1.36
+      command:
+        [
+          "sh",
+          "-c",
+          'i=0; while true; do echo "$(date) INFO order-$i processed" >> /logs/app.log; i=$((i+1)); sleep 2; done',
+        ]
+      volumeMounts:
+        - { name: logs, mountPath: /logs }
+    - name: log-shipper # sidecar: reads the same file and "ships" it
+      image: busybox:1.36
+      command: ["sh", "-c", "touch /logs/app.log; tail -F /logs/app.log"]
+      volumeMounts:
+        - { name: logs, mountPath: /logs }
+  volumes:
+    - name: logs
+      emptyDir: {}
