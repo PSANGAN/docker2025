@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Pod
+metadata: { name: app-with-adapter }
+spec:
+  containers:
+    - name: legacy-app # writes its own non-standard format
+      image: busybox:1.36
+      command: ["/bin/sh", "-c"]
+      args:
+        - |
+          while true; do
+            echo "{\"orders\": $(( $(date +%s) % 100 ))}" > /shared/status.json
+            sleep 5
+          done
+      volumeMounts: [{ name: shared, mountPath: /shared }]
+    - name: metrics-adapter # converts to Prometheus text format and serves it
+      image: busybox:1.36
+      command: ["/bin/sh", "-c"]
+      args:
+        - |
+          while true; do
+            v=$(sed 's/[^0-9]//g' /shared/status.json 2>/dev/null)
+            [ -n "$v" ] && echo "orders_total $v" > /shared/metrics
+            sleep 5
+          done &
+          httpd -f -p 9100 -h /shared
+      ports: [{ containerPort: 9100 }]
+      volumeMounts: [{ name: shared, mountPath: /shared }]
+  volumes:
+    - { name: shared, emptyDir: {} }
